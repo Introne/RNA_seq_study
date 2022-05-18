@@ -1,0 +1,10 @@
+# some biosoft
+## conda
+  Conda是一种开源的软件包和环境管理软件，用于安装和转换不同版本的软件包及环境。其专为Python设计，可用于Mac、Linux和Windows系统。
+
+        Conda有两个主要的版本，Anaconda和Miniconda，前者包含一些常用软件包，后者是精简版，根据需要安装软件包。考虑到用于生信工作一些常用包反而可能并不常用，我个人建议下载精简版。
+
+
+
+内容参考
+conda介绍：https://blog.csdn.net/invalidsyntax/article/details/120743789
