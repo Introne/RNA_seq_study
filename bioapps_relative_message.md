@@ -5,9 +5,36 @@
 
 
 ## sratoolkit
-sratoolkit 是NCBI提供的用于处理来自SRA数据库测序数据的一个工具包。注：SRA是NIH的高通量测序数据的主要档案，存档来自各种高通量测序平台的原始测序数据和比对信息，比如Illumina。
-sratoolkit是NCBI上将.sra文件转换为 .fstaq.gz文件的工具。
-sra是二进制文件，在Linux下如果用less去查看，它会显示这是个二进制文件，你是否确定打开它。一般我们分析测序数据，是用fastq文件打开分析，所以就需要转格式。
+sratoolkit 是NCBI提供的用于处理来自SRA数据库测序数据的一个工具包。
+
+sratoolkit可以将.sra文件转换为 .fstaq.gz文件的工具。
+
+注：sra是二进制文件，在Linux下如果用less去查看，它会显示这是个二进制文件，你是否确定打开它。一般我们分析测序数据，是用fastq文件打开分析，所以就需要转格式。
+
+此外，可以利用prefetch命令从NCBI网站下载SRA accession no.的列表文件
+
+注：SRA是NIH的高通量测序数据的主要档案，存档来自各种高通量测序平台的原始测序数据和比对信息，比如Illumina。
+
+### prefetch命令
+
+```bash
+Usage:
+  prefetch [options] <SRA accession | kart file> [...]
+  Download SRA or dbGaP files and their dependencies
+  
+  prefetch [options] <SRA file> [...]
+  Check SRA file for missed dependencies and download them
+
+  prefetch --list <kart file> [...]
+  List the content of a kart file
+```
+
+
+prefetch相关参数：(需要将prefetch -o参数改为-O，因为下载的是多个文件)
+
+  -o|--output-file <file>          Write file to <file> when downloading single file
+  -0--output-directory <directory) Save files to <directory>
+
 
 
 ## fastqc
@@ -36,8 +63,8 @@ BAM文件是SAM文件的二进制形式
 ## Trim Galore
 使用perl脚本编写的工具，是对cutapater和fastqc命令的封装。可以自动检测接头并调用cutapater进行
 
-## hisat2
-作为bowtie2和tophat的继任者，它在RNA-seq中使用较多。
+## hisat2: 基因组比对工具
+由于测序仪机器读长的限制，在构建文库的过程中首先需要将DNA片段化，测序得到的序列只是基因组上的部分序列。为了确定测序reads在基因组上的位置，需要将reads比对回参考基因组上，这个步骤叫做mapping。
 
 ##  Ensembl
 Ensembl是一个脊椎动物基因组的基因组浏览器，支持比较基因组的研究，进化，序列变异和转录调控。Ensembl可以注释基因，计算多重比对，预测调节功能和收集疾病数据。Ensembl工具集合包括BLAST、BLAT、BioMart和变异效应预测器(VEP)(支持所有物种)。
@@ -77,3 +104,4 @@ conda介绍：https://blog.csdn.net/invalidsyntax/article/details/120743789
 SAM文件：https://www.jianshu.com/p/9c99e09630da
 RNA-seq tips：https://www.51xxziyuan.com/54/539.html
 Ensembl、NCBI和UCSC：https://www.jianshu.com/p/017e5a565070
+sratoolkit配置网站：https://github.com/ncbi/sra-tools/wiki/02.-Installing-SRA-Toolkit
