@@ -35,6 +35,8 @@ prefetch相关参数：(需要将prefetch -o参数改为-O，因为下载的是�
   -o|--output-file <file>          Write file to <file> when downloading single file
   -0--output-directory <directory) Save files to <directory>
 
+### fastq-dump命令
+
 
 
 ## fastqc
@@ -43,7 +45,14 @@ prefetch相关参数：(需要将prefetch -o参数改为-O，因为下载的是�
 ```bash
 fastqc -t 12 -o out_path sample1_1.fq sample1_2.fq
 ```
--o --outdir:输出路径 --extract：结果文件解压缩 --noextract：结果文件压缩 -f --format:输入文件格式.支持bam,sam,fastq文件格式 -t --threads:线程数 -c --contaminants：制定污染序列。文件格式 name[tab]sequence -a --adapters：指定接头序列。文件格式name[tab]sequence -k --kmers：指定kmers长度（2-10bp,默认7bp） -q --quiet： 安静模式
+-o --outdir:输出路径   
+--extract：结果文件解压缩  
+--noextract：结果文件压缩  
+-f --format:输入文件格式.支持bam,sam,fastq文件格式  
+-t --threads:线程数  
+-c --contaminants：制定污染序列。文件格式 name[tab]sequence  
+-a --adapters：指定接头序列。文件格式name[tab]sequence   
+-k --kmers：指定kmers长度（2-10bp,默认7bp） -q --quiet： 安静模式
 
 注：
 SAM(Sequence Alignment/Map)格式是一种通用的比对格式，用来存储reads到参考序列的比对信息。
@@ -51,6 +60,8 @@ SAM是一种序列比对格式标准，由sanger制定，是以TAB为分割符�
 SAM分为两部分，注释信息（header section）和比对结果部分（alignment section）。
 
 BAM文件是SAM文件的二进制形式
+
+### fastqc输出文件解读
 
 
 ## multiqc
