@@ -333,9 +333,10 @@ Usage:
 accessions(s)：list of accessions to process
 
 Use option：
--3|--split-3：writes single reads into special file
---gzip, --bzip2: 以压缩文件的方式输出结果
---fasta:如果下游分析只需要用到fasta文件。当然了也有很多方法能够把fastq转换成fasta,比如说samtools.（嗯，偷懒必备技能~）
+--gzip 将转换出的fastq文件以gz格式输出，可以节省空间
+--split-3 把pair-end测序分成两个文件输出
+-X 拆分出指定的reads数目，默认拆分所有reads，一个read就是fastq的四行数据（老师为了上课测试，设置25000条reads，真实数据不需要加这个参数！！！）
+-O 输出文件夹名
 ```
 
 ## cutadapt
