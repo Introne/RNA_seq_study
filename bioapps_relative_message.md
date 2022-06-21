@@ -395,6 +395,7 @@ cat ... | parallel --pipe [options] [command [arguments]]
 语法:perl(选项)(参数)
 
 选项:
+-p: 自动循环+自动输出，相当于 while() { 脚本; print; }
 -n: 增加了循环的功能,使你可以一行一行来处理文件
 -e: 可以让Perl程序在Perl命令行上运行.
 -w：输出有用的警告信息；
