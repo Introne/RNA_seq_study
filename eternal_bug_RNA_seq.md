@@ -606,7 +606,7 @@ cat rn6.fa | grep "^>"
 
 ```bash
 # 首先将之前的名称更改一下
-$ mv rn6.fa rn6.raw.fa
+mv rn6.fa rn6.raw.fa
 
 # 然后去除染色体编号后的描述信息；打开文件，
 # perl -e: 交互式编程,用户可以在命令行中使用 -e 选项来输入语句来执行perl代码
@@ -615,27 +615,29 @@ $ mv rn6.fa rn6.raw.fa
 # Perl正则之 .+？：懒惰匹配 1 次或多次的任何字符；
 # Perl正则之 \s：\s是指空白，包括空格、换行、tab缩进等所有的空白
 # $1：对应前面正则捕捉到的内容
-$ cat rn6.raw.fa | perl -n -e 'if(m/^>(.+?)(?:\s|$)/){ print ">$1\n";}else{print}' > rn6.fa
+cat rn6.raw.fa | perl -n -e 'if(m/^>(.+?)(?:\s|$)/){ print ">$1\n";}else{print}' > rn6.fa
 
 # 删除
-$ rm rn6.raw.fa
+rm rn6.raw.fa
 ```
 + 可以使用脚本统计每一条染色体的长度
 
 ```bash
-$ cat rn6.fa | perl -n -e '
-    s/\r?\n//;
-    if(m/^>(.+?)\s*$/){
-        $title = $1;
-        push @t, $title;
-    }elsif(defined $title){
-        $title_len{$title} += length($_);
-    }
-    END{
-        for my $title (@t){
-            print "$title","\t","$title_len{$title}","\n";
-        }
-    }
+# 替换操作符 s/// 是匹配操作符的扩展，使用新的字符串替换指定的字符串。基本格式：s/PATTERN/REPLACEMENT/;
+#  s/\r?\n//：\r?模糊匹配一个回车符；\n匹配一个换行符；将空格和回车都删除
+cat rn6.fa | perl -n -e '
+   s/\r?\n//;
+   if(m/^>(.+?)\s*$/){
+      $title = $1;
+      push @t, $title;
+   }elsif(defined $title){
+      $title_len{$title} += length($_);
+   }
+  END{
+      for my $title (@t){
+           print "$title","\t","$title_len{$title}","\n";
+      }
+  }
 '
 ```
 长度
