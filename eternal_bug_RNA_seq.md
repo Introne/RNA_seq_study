@@ -608,11 +608,11 @@ cat rn6.fa | grep "^>"
 # 首先将之前的名称更改一下
 mv rn6.fa rn6.raw.fa
 
-# 然后去除染色体编号后的描述信息；打开文件，
+# 然后打开文件，去除染色体编号后的描述信息；
 # perl -e: 交互式编程,用户可以在命令行中使用 -e 选项来输入语句来执行perl代码
 # perl -n: 增加了循环的功能,使用户可以一行一行来处理文件
 # Perl正则之 m/^：默认的正则开始"^"和结束"$"只是对于正则字符串；如果在修饰符中加上"m"，那么开始和结束将会指字符串的每一行：每一行的开头就是"^"，结尾就是"$"。
-# Perl正则之 .+？：懒惰匹配 1 次或多次的任何字符；
+# Perl正则之 .+？：匹配序列名称；懒惰匹配 1 次或多次的任何字符；
 # Perl正则之 \s：\s是指空白，包括空格、换行、tab缩进等所有的空白
 # $1：对应前面正则捕捉到的内容
 cat rn6.raw.fa | perl -n -e 'if(m/^>(.+?)(?:\s|$)/){ print ">$1\n";}else{print}' > rn6.fa
@@ -623,8 +623,12 @@ rm rn6.raw.fa
 + 可以使用脚本统计每一条染色体的长度
 
 ```bash
+命令行详解见：https://www.jianshu.com/p/10da73890ef0
 # 替换操作符 s/// 是匹配操作符的扩展，使用新的字符串替换指定的字符串。基本格式：s/PATTERN/REPLACEMENT/;
-#  s/\r?\n//：\r?模糊匹配一个回车符；\n匹配一个换行符；将空格和回车都删除
+#  s/\r?\n//：除去末尾的回车符、换行符；其中，\r?\n匹配第一个换行符；将空格和回车都删除
+#  正则之 \s：只要出现空白就匹配
+# if(m/^>(.+?)\s*$/)：得到序列的名称；其中\s*用来匹配序列名称后面的空格。在 > 符号 与 第一个换行符 之间那么肯定是序列名称
+
 cat rn6.fa | perl -n -e '
    s/\r?\n//;
    if(m/^>(.+?)\s*$/){
@@ -675,7 +679,7 @@ KL568161.1	7627431
 这里为了方便演示，直接用1号染色体的基因组作为后续比对。
 
 ```bash
-$ cat rn6.fa | perl -n -e '
+cat rn6.fa | perl -n -e '
   if(m/^>/){
     if(m/>1$/){
       $title = 1;
@@ -690,6 +694,7 @@ $ cat rn6.fa | perl -n -e '
   }
 ' > rn6.chr1.fa
 ```
+
 > **基因组数据说明**
 > 
 > 基因组数据的格式为`.fasta`，这个格式是一种简单明了的格式，格式为：
@@ -760,7 +765,8 @@ $ head rn6.gff
 
 ```bash
 # 后台下载
-$ nohup prefetch SRR2190795 SRR224018{2..7} SRR2240228 -o . &
+# 先完成sratoolkit的配置工作
+$ nohup prefetch SRR2190795 SRR224018{2..7} SRR2240228 -O . &
 ```
 + 下载完成之后并不是之前说的`.fastq.gz`格式的文件，而是`.sra`文件，这里进行格式转换，这里还是使用`SRAtoolkit`工具包，但是是里面的`fastq-dump`工具，使用它来进行格式转化
 
@@ -777,8 +783,8 @@ $ rm *.sra
 ```
 > **fastq格式介绍**
 > ```bash
->    $ cd ~/project/rat/sequence
->    $ gzip -d -c SRR2190795.fastq.gz | head -n 20
+cd ~/project/rat/sequence
+gzip -d -c SRR2190795.fastq.gz | head -n 20
 > ```
 > 
 > @SRR2190795.1 HWI-ST1147:240:C5NY7ACXX:1:1101:1320:2244 length=100
@@ -938,8 +944,6 @@ $ multiqc .
 
 如果在提取RNA过程中没有对RNA进行筛选的情况下，那么得到的大部分将会是`rRNA`，这个对于后续的分析可能会存在影响，另外也会让比对的时间变长。
 
-> **注意**：在使用`sortmerna`的时候需要确保测序文件是**未压缩的文件**
-
 ```bash
 $ cd ~/project/rat/output
 $ mkdir -p ./rRNA/discard
@@ -947,7 +951,8 @@ $ mkdir -p ./rRNA/discard
 $ cd trim
 
 $ parallel -j 4 "
-  # 解压测序文件
+
+  # 在使用`sortmerna`的时候需要确保测序文件是未压缩的文件，故trim中的文件需要解压
   gzip -d {1}*.fq.gz
   
   # euk_rNRA_ref_data就是之前安装sortmerna的时候定义的数据库文件
@@ -960,6 +965,7 @@ $ parallel -j 4 "
   # -v       : 吵闹模式
   
   # 注意--aligned和--other后接文件名前缀，不用在加什么 .fq 或者 .fastq之类的，否则将会生成 xxx.fq.fq
+  
   sortmerna \
     --ref $euk_rNRA_ref_data \
     --reads {1}*.fq \
@@ -973,7 +979,7 @@ $ parallel -j 4 "
   # 压缩fastq文件
   gzip ../rRNA/{1}.fq
   gzip ../rRNA/discard/{1}.fq
-" ::: $(ls *.fq.gz | perl -n -e 'print $1."\n" if m/(.+?)_/')
+" ::: $(ls *.fq.gz | perl -n -e 'print $1."\n" if m/(.+?)./')
 ```
 
 ## 6. 序列比对
@@ -1003,23 +1009,24 @@ $ cd ~/project/rat/genome
 $ mkdir index
 $ cd index
 
-$ hisat2-build  -p 6 ../rn6.chr1.fa rn6.chr1
+# hisat2-build -p: 并行运算线程数
+$ hisat2-build  -p 6 ../rn6.fa rn6.chr
 ```
 在运行过程中会有部分信息提示，其中说到建立索引文件的分块情况以及运行时间的统计
 
 索引建立完成之后在`~/project/rat/genome`文件夹下会出现
 
 ```
-rn6.chr1.1.ht2
-rn6.chr1.2.ht2
-rn6.chr1.3.ht2
-rn6.chr1.4.ht2
-rn6.chr1.5.ht2
-rn6.chr1.6.ht2
-rn6.chr1.7.ht2
-rn6.chr1.8.ht2
+rn6.chr.1.ht2
+rn6.chr.2.ht2
+rn6.chr.3.ht2
+rn6.chr.4.ht2
+rn6.chr.5.ht2
+rn6.chr.6.ht2
+rn6.chr.7.ht2
+rn6.chr.8.ht2
 ```
-8个文件，这些文件是对基因组进行压缩之后的文件，这个将基因组序列数据分块成了8份，在执行序列比对的时候直接使用这些文件而不是基因组`rn6.chr1.fa`文件。
+8个文件，这些文件是对基因组进行压缩之后的文件，这个将基因组序列数据分块成了8份，在执行序列比对的时候直接使用这些文件。
 
 
 ### 6.2  开始比对
@@ -1039,8 +1046,9 @@ $ cd ~/project/rat/output
 $ mkdir align
 $ cd rRNA
 
+# hisat2 -t/-time:输出搜索阶段所花费的wall-clock时间
 $ parallel -k -j 4 "
-    hisat2 -t -x ../../genome/index/rn6.chr1 \
+    hisat2 -t -x ../../genome/index/rn6.chr \
       -U {1}.fq.gz -S ../align/{1}.sam \
       2>../align/{1}.log
 " ::: $(ls *.gz | perl -p -e 's/.fq.gz$//')
