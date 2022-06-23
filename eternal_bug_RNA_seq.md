@@ -1047,9 +1047,10 @@ $ mkdir align
 $ cd rRNA
 
 # hisat2 -t/-time:输出搜索阶段所花费的wall-clock时间
+# 此处需要确认WSL的可分配内存空间，如果memory不够，会在日志中显示killed
 $ parallel -k -j 4 "
     hisat2 -t -x ../../genome/index/rn6.chr \
-      -U {1}.fq.gz -S ../align/{1}.sam \
+      -U {1} -S ../align/{1}.sam \
       2>../align/{1}.log
 " ::: $(ls *.gz | perl -p -e 's/.fq.gz$//')
 ```
