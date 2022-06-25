@@ -720,19 +720,19 @@ $ gzip -d rn6.tar.gz
 
 ```bash
 $ cd ~/project/rat/annotation
-$ wget ftp://ftp.ensembl.org/pub/release-97/gff3/rattus_norvegicus/Rattus_norvegicus.Rnor_6.0.97.gff3.gz
-$ gzip -d Rattus_norvegicus.Rnor_6.0.97.gff3.gz
+$ wget ftp.ensembl.org/pub/release-106/gtf/rattus_norvegicus/Rattus_norvegicus.mRatBN7.2.106.gtf.gz 
+$ gzip -d Rattus_norvegicus.mRatBN7.2.106.gtf.gz 
 
 # 同样的也改名
-$ mv Rattus_norvegicus.Rnor_6.0.97.gff3 rn6.gff
+$ mv Rattus_norvegicus.mRatBN7.2.106.gtf rn6.gtf
 
 # 使用head查看部分
-$ head rn6.gff
+$ head rn6.gtf
 ```
 
 > **注释数据说明**
 > 
-> 注释`gff`文件的样例：
+> 注释`gtf`文件的样例：
 > 
 > ```
 > #!genome-build Rnor_6.0
@@ -745,7 +745,16 @@ $ head rn6.gff
 > 1	ensembl	exon	396700	396905	.	+	.	gene_id "ENSRNOG00000046319"; gene_version "4"; transcript_id "ENSRNOT00000044187"; transcript_version "4"; exon_number "1"; gene_name "AABR07000046.1"; gene_source "ensembl_havana"; gene_biotype "processed_transcript"; transcript_name "AABR07000046.1-202"; transcript_source "ensembl"; transcript_biotype "processed_transcript"; exon_id "ENSRNOE00000493937"; exon_version "1";
 > ```
 >
-> gff文件开头描述了这个注释数据的基本信息，比如版本号，更新时间，组装的NCBI的Assembly编号等等，后面每一行表示描述信息，说明了在哪条染色体的什么位置是什么东西。比如第6行的表示在1号染色体正链上 396700-409750 这个范围内有一个基因编号为ENSRNOG00000046319的基因
+> gtf文件开头描述了这个注释数据的基本信息，比如版本号，更新时间，组装的NCBI的Assembly编号等等，后面每一行表示描述信息，说明了在哪条染色体的什么位置是什么东西。比如第6行的表示在1号染色体正链上 396700-409750 这个范围内有一个基因编号为ENSRNOG00000046319的基因
+
+>gtf和gff文件的区别
+GFF全称为general feature format，这种格式主要是用来注释基因组。  
+GTF全称为gene transfer format，主要是用来对基因进行注释。
+
+GTF是在GFF的基础上发展而来。
+二者有很多类似的地方，都是t分隔的9列文件，内容也比较接近。
+GFF能够包含的信息更多更全，可以包含染色体，基因，转录本的信息。
+而GTF主要用来描述基因和转录本的信息。
 
 ### 3.2 测试数据（实验数据）
 
@@ -1047,7 +1056,7 @@ $ mkdir align
 $ cd rRNA
 
 # hisat2 -t/-time:输出搜索阶段所花费的wall-clock时间
-# 此处需要确认WSL的可分配内存空间，如果memory不够，会在日志中显示killed
+# 此处需要确认WSL的可分配内存空间，如果memory不够，会在日志中显示killed in value 137;可以先释放wsl空间；要是还不行的话，可以不parallel，直接愚蠢的一个个比对
 $ parallel -k -j 4 "
     hisat2 -t -x ../../genome/index/rn6.chr \
       -U {1} -S ../align/{1}.sam \
@@ -1118,6 +1127,9 @@ SAM格式是目前用来存放大量核酸比对结果信息的通用格式，�
 
 
 ```bash
+# samtools sort -@ INT > 设置线程数量；sort是排序命令；输出选用>进行重定向写入
+# samtools index 索引经过sort的BAM文件
+
 $ cd ~/project/rat/output/align
 $ parallel -k -j 4 "
     samtools sort -@ 4 {1}.sam > {1}.sort.bam
@@ -1179,10 +1191,10 @@ cd ~/project/rat/output
 mkdir HTseq
 
 cd align
-parallel -j 4 "
-    htseq-count -s no -f bam {1}.sort.bam ../../annotation/rn6.gff \
+parallel -j 2 "
+    htseq-count -s no -f bam {1}.sort.bam ../../annotation/rn6.gtf \
       >../HTseq/{1}.count  2>../HTseq/{1}.log
-" ::: $(ls *.sort.bam | perl -p -e 's/\.sort\.bam$//')
+" ::: $(ls *.sort.bam | perl -p -e 's/\.sort\.bam//')
 ```
 
 查看生成的文件
