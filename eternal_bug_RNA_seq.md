@@ -720,11 +720,11 @@ $ gzip -d rn6.tar.gz
 
 ```bash
 $ cd ~/project/rat/annotation
-$ wget ftp.ensembl.org/pub/release-106/gtf/rattus_norvegicus/Rattus_norvegicus.mRatBN7.2.106.gtf.gz 
-$ gzip -d Rattus_norvegicus.mRatBN7.2.106.gtf.gz 
+$ wget ftp.ensembl.org/pub/release-106/gtf/rattus_norvegicus/Rattus_norvegicus.mRatBN7.2.106.chr.gtf.gz 
+$ gzip -d Rattus_norvegicus.mRatBN7.2.106.chr.gtf.gz 
 
 # 同样的也改名
-$ mv Rattus_norvegicus.mRatBN7.2.106.gtf rn6.gtf
+$ mv Rattus_norvegicus.mRatBN7.2.106.chr.gtf rn6.gtf
 
 # 使用head查看部分
 $ head rn6.gtf
@@ -1191,10 +1191,10 @@ cd ~/project/rat/output
 mkdir HTseq
 
 cd align
-parallel -j 2 "
-    htseq-count -s no -f bam {1}.sort.bam ../../annotation/rn6.gtf \
+parallel -j 4 "
+    htseq-count -s no -f bam {1}.sort.bam ../../annotation/rn6.gtf\
       >../HTseq/{1}.count  2>../HTseq/{1}.log
-" ::: $(ls *.sort.bam | perl -p -e 's/\.sort\.bam//')
+" ::: $(ls *.sort.bam | perl -p -e 's/\.sort\.bam$//')
 ```
 
 查看生成的文件
