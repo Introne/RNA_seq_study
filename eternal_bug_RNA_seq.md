@@ -1329,11 +1329,20 @@ gene3       x             x            x
 + 首先得到相关基因的长度信息
 
 ```R
+# 安装GenomicFeatures包
+BiocManager::install(c("GenomicFeatures", "AnnotationDbi"))
+
+
+rm(list=ls())
+setwd("~/project/rat/output/HTseq")
+read.csv("merge.csv")
+
+
 library(GenomicFeatures)
 # 构建Granges对象
-txdb <- makeTxDbFromGFF("rn6.gff" )
+txdb <- makeTxDbFromGFF("rn6.gtf" )
 # 查找基因的外显子
-exons_gene <- exonsBy(txdb, by = "gene")
+exons_gene <- exonsBy(txdb, by = "gene_id")
 # 计算总长度
 # reduce()、width()是Irange对象的方法
 gene_len <- list()
@@ -1596,16 +1605,17 @@ countdata <- countdata[rowSums(countdata) > 0,]
 首先安装对应的R包
 
 ```R
-# 使用bioconductor进行安装
-source("http://bioconductor.org/biocLite.R")
-options(BioC_mirror="http://mirrors.ustc.edu.cn/bioc/")
+# Bioconductor在R3.5版本以后，终于放弃了source() 这种危险的链接方式，改为用新的安装方式BiocManager进行安装：
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install("ballgown", version = "3.8")
+安装好了BiocManager，以后装软件就只需要粘贴最后一行代码BiocManager::install 就好了
 
-# 安装包
-biocLite("DESeq2")
-biocLite("pheatmap")
-biocLite("biomaRt")
-biocLite("org.Rn.eg.db")
-biocLite("clusterProfiler")
+BiocManager::install("DESeq2")
+BiocManager::install("pheatmap")
+BiocManager::install("biomaRt")
+BiocManager::install("org.Rn.eg.db")
+BiocManager::install("clusterProfiler")
 
 # 加载
 library(DESeq2)
@@ -1658,12 +1668,17 @@ treatment不一定就是指代样本是经过什么处理的，也可以是`细�
 表达数据已经有了，下面是写一下实验组与对照组的信息，打开终端，`cd`到相应位置
 
 ```bash
+makir -p phenotype
 cat <<EOF >./phenotype/phenotype.csv
 "ids","state","condition","treatment"
 "SRR2240185","Liver cirrhosis","DEN","treatment"
 "SRR2240186","Liver cirrhosis","DEN","treatment"
 "SRR2240187","Healthy control","PBS","control"
 "SRR2240228","Healthy control","PBS","control"
+"SRR2190795","Liver cirrhosis","DEN + AM095","treatment"
+"SRR2240182","Liver cirrhosis","DEN + AM095","treatment"
+"SRR2240183","Liver cirrhosis","DEN + AM095","treatment"
+"SRR2240184","Liver cirrhosis","DEN + AM095","treatment"
 EOF
 ```
 
@@ -1674,7 +1689,7 @@ EOF
 countdata
 
 # 读取样本分组信息(注意，需要加上row.names = 1, header = TRUE，将行列名需要看好)
-coldata <- read.table("../phenotype/phenotype.csv", row.names = 1, header = TRUE, sep = "," )
+coldata <- read.table("./phenotype/phenotype.csv", row.names = 1, header = TRUE, sep = "," )
 # 确认一下行列名是否有（不是简单的数值）
 head(coldata)
 # 调整数据顺序
@@ -1926,12 +1941,10 @@ write.csv(diff_gene, file="../DESeq2/difference.csv", quote = F)
 ### 10.2 使用`ClusterProfiler`对基因的ID进行转化
 
 ```R
-# 首先安装ClusterProfiler
-source("http://bioconductor.org/biocLite.R")
 # 安装clusterProfiler包
-biocLite("clusterProfiler")
+BiocManager::install("clusterProfiler")
 # 这里我们分析的是大鼠，安装大鼠的数据库
-biocLite("org.Rn.eg.db")
+BiocManager::install("org.Rn.eg.db")
 
 # 加载包
 library(clusterProfiler)
@@ -1957,7 +1970,7 @@ ensembl_id_transform(ensembl_gene_id)
 
 ```R
 # 安装
-biocLite("biomaRt")
+BiocManager::install("biomaRt")
 
 # 加载
 library("biomaRt")
@@ -2233,7 +2246,7 @@ cd ~/project/rat/output/
 mkdir matrix
 
 # 开始进行转换
-python2 ~/project/rat/script/prepDE.py \
+python3 ~/project/rat/script/prepDE.py \
    -i ./abundance \
    -g ./matrix/gene_count_matrix.csv \
    -t ./matrix/transcript_count_matrix.csv \
@@ -2287,6 +2300,7 @@ tree -d
 在分析之前需要新建一个表型(phenotype)文件，这个文件是用来对样本记性描述的，下面是一个样例
 
 ```bash
+
 "ids","sex","population"
 "ERR188044","male","YRI"
 "ERR188104","male","YRI"
@@ -2337,16 +2351,13 @@ EOF
 接下来就可以用R语言进行后续的分析了，打开`Rstudio`
 
 ```R
-# 使用biocLite("ballgown")进行包的安装
-source("http://bioconductor.org/biocLite.R")
-options(BioC_mirror="http://mirrors.ustc.edu.cn/bioc/")
-
+# 使用BiocManager进行包的安装
 # 安装包
-biocLite("ballgown")
-biocLite("RSkittleBrewer")
-biocLite("devtools")
-biocLite("genefilter")
-biocLite("dplyr")
+BiocManager::install("ballgown")
+BiocManager::install("RSkittleBrewer")
+BiocManager::install("devtools")
+BiocManager::install("genefilter")
+BiocManager::install("dplyr")
 
 # 读取表型文件
 
