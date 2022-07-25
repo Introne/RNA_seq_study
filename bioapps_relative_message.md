@@ -52,7 +52,6 @@ nohup fastqc -o ./fastqc_70/ -f fastq clean_* &
 图一：
 ![fastqc-1](./Photos/fastqc-1.png)
 
-
 ##### Summary
 
 图一左，Summary即整个报告的目录。绿色勾勾代表PASS；黄色感叹号代表WARN；红色勾勾代表FAIL。当出现黄色时说明需要查看结果。
